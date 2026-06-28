@@ -8,98 +8,130 @@ Este proyecto es el comienzo de aprendizaje de PHP con Laravel, haciendo el proy
 
 ```sql
 
-CREATE DATABASE panaderia_rs;
+CREATE DATABASE IF NOT EXISTS panaderia_rs;
 USE panaderia_rs;
 
-CREATE TABLE usuario(
-id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-roles ENUM('admin', 'superadmin') DEFAULT 'admin',
-nombre_usuario VARCHAR(150) NOT NULL,
-clave VARCHAR(250) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE roles (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE,
+    descripcion VARCHAR(255),
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE tipo(
-id_tipo INT AUTO_INCREMENT PRIMARY KEY,
-tipo VARCHAR(100)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE producto(
-id_producto INT AUTO_INCREMENT PRIMARY KEY,
-nombre_prod VARCHAR(150),
-id_tipo INT NOT NULL,
-FOREIGN KEY(id_tipo) REFERENCES tipo(id_tipo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE turno(
-id_turno INT AUTO_INCREMENT PRIMARY KEY,
-nombre_turno ENUM('Mañana', 'Noche')
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE producciones (
-    id_produccion INT AUTO_INCREMENT PRIMARY KEY,
-    id_producto INT NOT NULL,
-    id_presentacion INT NULL,             
-    cantidad_presentaciones INT NOT NULL, 
-    cantidad_total_panes INT NOT NULL,     
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    id_rol INT NOT NULL DEFAULT 1,
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
-    FOREIGN KEY (id_presentacion) REFERENCES presentaciones_pan(id_presentacion)
-);
+    FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE empleados (
+    id_empleado INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NULL UNIQUE,              
+    nombre_empleado VARCHAR(100) NOT NULL,
+    apellido_empleado VARCHAR(100),
+    dni VARCHAR(20) UNIQUE,
+    telefono VARCHAR(15),
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE tipos (
+    id_tipo INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_tipo VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE presentaciones (
+    id_presentacion INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_presentacion VARCHAR(50) NOT NULL UNIQUE,
+    descripcion VARCHAR(255),
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE productos (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_producto VARCHAR(150) NOT NULL,
+    id_tipo INT NOT NULL,
+    precio_venta DECIMAL(10,2) DEFAULT 0.00,
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (id_tipo) REFERENCES tipos(id_tipo)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE producto_presentacion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_producto INT NOT NULL,
     id_presentacion INT NOT NULL,
-    es_principal BOOLEAN DEFAULT FALSE,     
+    cantidad_unidades INT NOT NULL,         -- cuántas unidades entran en esta presentación
+    es_principal BOOLEAN DEFAULT FALSE,
+    
     FOREIGN KEY (id_producto) REFERENCES productos(id_producto) ON DELETE CASCADE,
-    FOREIGN KEY (id_presentacion) REFERENCES presentaciones_pan(id_presentacion) ON DELETE CASCADE,
+    FOREIGN KEY (id_presentacion) REFERENCES presentaciones(id_presentacion) ON DELETE CASCADE,
+    
     UNIQUE KEY unique_producto_presentacion (id_producto, id_presentacion)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-CREATE TABLE presentaciones_pan (
-    id_presentacion INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_presentacion VARCHAR(50) NOT NULL, 
-    cantidad_panes INT NOT NULL,                   
-    descripcion VARCHAR(255),                    
+CREATE TABLE turnos (
+    id_turno INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_turno VARCHAR(50) NOT NULL,
+    hora_inicio TIME,
+    hora_fin TIME,
     activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE producciones (
+    id_produccion INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto_presentacion INT NOT NULL, 
+    id_turno INT NOT NULL,
+    id_usuario INT NOT NULL, 
+    fecha_produccion DATE NOT NULL,
+    cantidad_presentaciones INT NOT NULL DEFAULT 0,
+    cantidad_total_unidades INT NOT NULL DEFAULT 0,
+    cantidad_agotada INT DEFAULT 0,
+    cantidad_merma INT DEFAULT 0,
+    hora_agotada DATETIME NULL,
+    observaciones TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_producto_presentacion) REFERENCES producto_presentacion(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_turno) REFERENCES turnos(id_turno) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- Datos
-INSERT INTO usuario (roles, nombre_usuario, clave) VALUES
-('admin', 'gerente', '1234'),
-('superadmin', 'dueña', '1234');
+CREATE TABLE produccion_empleado (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_produccion INT NOT NULL,
+    id_empleado INT NOT NULL,
+    rol_en_turno VARCHAR(50) DEFAULT 'Operario',
+    
+    FOREIGN KEY (id_produccion) REFERENCES producciones(id_produccion) ON DELETE CASCADE,
+    FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado) ON DELETE RESTRICT,
+    
+    UNIQUE KEY unique_empleado_produccion (id_produccion, id_empleado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO tipo (tipo) VALUES
-('Pan'),
-('Torta'),
-('Bocadito');
-
-INSERT INTO producto (nombre_prod, id_tipo) VALUES
-('Pan de molde', 1),
-('Torta de chocolate', 2),
-('Bocadito de queso', 3),
-('Pastel de manzana', 2),
-('Galleta de avena', 1),
-('Empanada de pollo', 1),
-('Croissant de mantequilla', 1),
-('Queque de vainilla', 2);
-
-INSERT INTO turno (nombre_turno) VALUES
-('Mañana'),
-('Noche');
-
-INSERT INTO produccion (cantidad_prod, hora_agotada, id_producto, id_turno) VALUES
-(100, NULL, 1, 1),
-(50, '2026-05-11 10:30:00', 2, 1),
-(80, NULL, 3, 2),
-(60, '2026-05-11 21:00:00', 4, 2),
-(120, NULL, 5, 1),
-(45, '2026-05-11 09:15:00', 6, 1),
-(90, NULL, 7, 2),
-(30, '2026-05-11 22:45:00', 8, 2);
 
 ```
 
