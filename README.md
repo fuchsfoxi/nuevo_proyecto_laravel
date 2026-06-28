@@ -100,3 +100,8 @@ INSERT INTO produccion (cantidad_prod, hora_agotada, id_producto, id_turno) VALU
 (45, '2026-05-11 09:15:00', 6, 1),
 (90, NULL, 7, 2),
 (30, '2026-05-11 22:45:00', 8, 2);
+
+```
+
+## Diagrama entidad relacion 
+
