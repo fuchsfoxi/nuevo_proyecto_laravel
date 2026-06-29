@@ -134,6 +134,6 @@ CREATE TABLE produccion_empleado (
 
 
 ```
-
 ## Diagrama entidad relacion 
 
+![imagen de entidad - relacion](https://github.com/fuchsfoxi/nuevo_proyecto_laravel/blob/main/.github/base%20de%20datos%20-%20img%20-%20relacional.svg)
