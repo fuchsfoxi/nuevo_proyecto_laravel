@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('productos', function (Blueprint $table) {
-            $table->foreign(['id_tipo'], 'productos_ibfk_1')->references(['id_tipo'])->on('tipos')->onUpdate('cascade')->onDelete('restrict');
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('productos', function (Blueprint $table) {
-            $table->dropForeign('productos_ibfk_1');
-        });
+        Schema::dropIfExists('roles');
     }
 };

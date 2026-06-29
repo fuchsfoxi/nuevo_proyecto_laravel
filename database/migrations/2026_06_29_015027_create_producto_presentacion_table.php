@@ -12,13 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('producto_presentacion', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->integer('id_producto');
-            $table->integer('id_presentacion')->index('id_presentacion');
-            $table->integer('cantidad_unidades');
-            $table->boolean('es_principal')->nullable()->default(false);
-
-            $table->unique(['id_producto', 'id_presentacion'], 'unique_producto_presentacion');
+            $table->id();
+            $table->timestamps();
         });
     }
 

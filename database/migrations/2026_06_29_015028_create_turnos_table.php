@@ -12,12 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('turnos', function (Blueprint $table) {
-            $table->integer('id_turno', true);
-            $table->string('nombre_turno', 50);
-            $table->time('hora_inicio')->nullable();
-            $table->time('hora_fin')->nullable();
-            $table->boolean('activo')->nullable()->default(true);
-            $table->timestamp('created_at')->useCurrent();
+            $table->id();
+            $table->timestamps();
         });
     }
 

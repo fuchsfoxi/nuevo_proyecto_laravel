@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('turno', function (Blueprint $table) {
-            $table->integer('id_turno', true);
-            $table->enum('nombre_turno', ['Mañana', 'Noche'])->nullable();
+        Schema::create('empleados', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('turno');
+        Schema::dropIfExists('empleados');
     }
 };

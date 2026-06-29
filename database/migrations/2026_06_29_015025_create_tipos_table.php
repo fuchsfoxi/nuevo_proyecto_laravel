@@ -12,11 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tipos', function (Blueprint $table) {
-            $table->integer('id_tipo', true);
-            $table->string('nombre_tipo', 100);
-            $table->string('descripcion')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
+            $table->id();
+            $table->timestamps();
         });
     }
 

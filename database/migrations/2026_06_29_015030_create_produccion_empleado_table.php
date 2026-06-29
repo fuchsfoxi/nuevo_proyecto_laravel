@@ -12,12 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('produccion_empleado', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->integer('id_produccion');
-            $table->integer('id_empleado')->index('id_empleado');
-            $table->string('rol_en_turno', 50)->nullable()->default('Operario');
-
-            $table->unique(['id_produccion', 'id_empleado'], 'unique_empleado_produccion');
+            $table->id();
+            $table->timestamps();
         });
     }
 
