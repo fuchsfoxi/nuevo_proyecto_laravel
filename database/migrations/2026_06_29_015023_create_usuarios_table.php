@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_usuario');
+            $table->string('nombre', 150)->notNull();
+            $table->string('gmail', 100)->notNull()->unique();
+            $table->string('password_hash', 255)->notNull();
+            $table->boolean('activo')->default(true);
+            $table->timestamp('created_at')->notNull()->currentTimestamp();
+            $table->timestamp('updated_at')->notNull()->currentTimestamp();
         });
     }
 
