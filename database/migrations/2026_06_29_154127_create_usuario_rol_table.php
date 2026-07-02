@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('usuario_rol', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->unsignedInteger('id_usuario');
+            $table->unsignedInteger('id_rol');
+            $table->timestamp('asignado_en')->notnull()->currentTimestamp();
+            $table->primary('id_usuario', 'id_rol');
+            $table->foreign('id_usuario', 'usuario')->references('id_usuario');
+            $table->foreign('id_rol', 'rol') ->references('id_rol');
         });
     }
 

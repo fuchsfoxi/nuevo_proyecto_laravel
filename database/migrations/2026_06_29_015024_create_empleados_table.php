@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('empleados', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_empleado');
+            $table->string('nombre', 100)->notNull();
+            $table->string('DNI', 8)->unique();
+            $table->string('telefono', 9)->unique();
+            $table->string('puesto', 100)->notNull();
+            $table->boolean('activo')->default(true);
             $table->timestamps();
+            $table->foreign('id_usuario', 'usuario')->references('id_usuario')->on('usuarios');
         });
     }
 
